@@ -25,7 +25,7 @@ class Options():
         self.parser.add_argument('--hidden_dim', type=int, default=384, help='hidden dim of basic layers')
         self.parser.add_argument('--cnn_dim', type=int, default=256, help='hidden dim of cnn layers')
         self.parser.add_argument('--layer', type=int, default=1, help='number of layers')
-        self.parser.add_argument('--stack_types', type=str, default= '"encoder","decoder","residue"', help='model stacks specified for this sensor.')
+        self.parser.add_argument('--stack_types', type=str, default= '"encoder","decoder","encoder","decoder","residue"', help='model stacks specified for this sensor.')
         
         self.parser.add_argument('--input_dim', type=int, default=1, help='input dimension')
         self.parser.add_argument('--output_dim', type=int, default=1, help='output dimension')
