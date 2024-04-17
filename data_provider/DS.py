@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[1]:
+
 import numpy as np
 import random
 import pandas as pd
@@ -190,7 +192,7 @@ class DS:
             for ii in range(len(self.data)):
                 if (self.data[ii] is not None) and (np.isnan(self.data[ii]) != 1):
                     clean_data.append(self.data[ii])
-            sensor_data_prob = np.array(clean_data, np.float32).reshape(-1, 1)           
+            sensor_data_prob = np.array(clean_data).reshape(-1, 1)           
             self.gm3.fit(sensor_data_prob)
             torch.save(self.gm3, self.expr_dir + '/' + str(self.sensor_id) + 'GMM.pt') 
             print("gm3.means are: ", self.gm3.means_)
@@ -204,13 +206,14 @@ class DS:
             prob_like_outlier3 = prob_like_outlier3.reshape((len(sensor_data_prob), 1))
             
             recover_data = []
+            temp = [0.5]
             jj = 0
             for ii in range(len(self.data)):
                 if (self.data[ii] is not None) and (np.isnan(self.data[ii]) != 1):
                     recover_data.append(prob_like_outlier3[jj])
                     jj = jj + 1
                 else:
-                    recover_data.append(self.data[ii])                    
+                    recover_data.append(temp)                    
             prob_like_outlier3 = np.array(recover_data, np.float32).reshape(len(self.data), 1)
 
             print("Finish prob indicator generating.")
@@ -276,7 +279,7 @@ class DS:
                     label0 = np.array(self.sensor_data_norm[(i+self.train_days):(i+self.train_days+self.predict_days)]) 
                     label01 = np.array(self.data[(i+self.train_days):(i+self.train_days+self.predict_days)])
                     label02 = np.array(self.sensor_data[(i+self.train_days):(i+self.train_days+self.predict_days)])
-                    label01 = label01.astype(np.int)
+                    # label01 = label01.astype(np.int)
                     label0 = [[ff] for ff in label0]
 
                     b = i+self.train_days
@@ -345,7 +348,7 @@ class DS:
                     data0 = np.array(self.sensor_data_norm1[i:(i+self.train_days)]).reshape(self.train_days,-1)
                     label00 = np.array(self.sensor_data_norm[(i+self.train_days):(i+self.train_days+self.predict_days)]) 
                     label01 = np.array(self.data[(i+self.train_days):(i+self.train_days+self.predict_days)]) 
-                    label01 = label01.astype(np.int)
+                    # label01 = label01.astype(np.int)
                     label0 =[[ff] for ff in label00]
 
                     b = i+self.train_days
@@ -409,7 +412,7 @@ class DS:
         train_end = self.trainX[self.trainX["datetime"]==self.opt.train_point].index.values[0] - start_num 
         print("train set length is : ", train_end)
         
-        # the whole dataset
+        #the whole dataset
         k = self.trainX[self.trainX["datetime"]==self.test_end_time].index.values[0]
         f = self.trainX[self.trainX["datetime"]==self.test_start_time].index.values[0]
         self.sensor_data = self.trainX[start_num:k] 
@@ -424,7 +427,7 @@ class DS:
             for ii in range(len(self.data)):
                 if (self.data[ii] is not None) and (np.isnan(self.data[ii]) != 1):
                     clean_data.append(self.data[ii])
-            sensor_data_prob = np.array(clean_data, np.float32).reshape(-1, 1)  
+            sensor_data_prob = np.array(clean_data).reshape(-1, 1)  
             
             weights3 = self.gm3.weights_
             data_prob3 = self.gm3.predict_proba(sensor_data_prob)
@@ -434,14 +437,15 @@ class DS:
             prob_like_outlier3 = prob_like_outlier3.reshape(len(sensor_data_prob), 1)
             
             recover_data = []
+            temp0 = [0.5]
             jj = 0
             for ii in range(len(self.data)):
                 if (self.data[ii] is not None) and (np.isnan(self.data[ii]) != 1):
                     recover_data.append(prob_like_outlier3[jj])
                     jj = jj + 1
                 else:
-                    recover_data.append(self.data[ii])                    
-            prob_like_outlier3 = np.array(recover_data, np.float32).reshape(len(self.data), 1)         
+                    recover_data.append(temp0)                    
+            prob_like_outlier3 = np.array(recover_data).reshape(len(self.data), 1)         
             print("Finish prob indicator updating.")
     
         if  (self.opt_hinter_dim >= 1):
