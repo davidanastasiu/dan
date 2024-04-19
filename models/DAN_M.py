@@ -20,6 +20,7 @@ from models.ResidueLSTM import *
 from sklearn.metrics import mean_absolute_percentage_error
 from datetime import datetime, timedelta
 import logging
+from metric import *
 logging.basicConfig(filename = "DAN_M.log", filemode='w', level = logging.DEBUG)
 random.seed('a')
 
@@ -344,6 +345,7 @@ class DAN:
         model.load_state_dict(torch.load(net_name), strict=False)
         self.net = model
     
+    
     def generate_test_rmse_mape(self):
         
         total = 0 
@@ -402,15 +404,15 @@ class DAN:
         basic_model_path = self.expr_dir + '/' + str(self.sensor_id) + OS    
         
         aa = pd.DataFrame(data = val_pred_lists_print)
-        aa.to_csv(basic_path + '_' + watersheds + str(self.TrainEnd) + '_pred_lists_print.tsv', sep = '\t')
+        i_dir = basic_path + '_' + watersheds + str(self.TrainEnd) + '_pred_lists_print.tsv'
+        aa.to_csv(i_dir, sep = '\t')
+        print("Inferencing result is saved in: ", i_dir)
 
         if non_flag == 0:
             mape = mean_absolute_percentage_error(np.array(gt_mape_list)+1, np.array(val_mape_list)+1)
         else:
-            mape = 100
-            
-        return total,  mape
-
+            mape = 100            
+        return total,  mape, i_dir
     
     def inference(self): 
         start = time.time()
@@ -431,8 +433,8 @@ class DAN:
         self.hour = self.dataset.get_hour()
         
         self.model_load()       
-        rmse, mape = self.generate_test_rmse_mape() # inference on test set
-
+        rmse, mape, i_dir = self.generate_test_rmse_mape() # inference on test set
+        return i_dir
 
     def train(self):
 
