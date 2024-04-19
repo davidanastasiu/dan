@@ -39,9 +39,9 @@ Refer to the annotations in `options.py` for other parameter settings.
 
 ## Training mode
 
-run `main-Saratoga.ipynb` for sensor Saratoga,
-run `main-SFC.ipynb` for sensor SFC,
-run `main-ROSS.ipynb` for sensor ROSS,
+run `main-Saratoga.ipynb` for sensor Saratoga.
+run `main-SFC.ipynb` for sensor SFC.
+run `main-ROSS.ipynb` for sensor ROSS.
 run `main-UpperPen.ipynb` for sensor UpperPen.
 
 ## Inferencing mode
