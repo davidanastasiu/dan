@@ -37,7 +37,7 @@ Use parameter `--r_shift` is the shift positions of rain hinter. Set it to 288 i
 
 Refer to the annotations in `options.py` for other parameter settings.
 
-## Training mode
+## Training and Inferencing
 
 run `main-Saratoga.ipynb` for sensor Saratoga.
 
@@ -47,8 +47,5 @@ run `main-ROSS.ipynb` for sensor ROSS.
 
 run `main-UpperPen.ipynb` for sensor UpperPen.
 
-## Inferencing mode
-
-The inferencing has already been included after running run `main.ipynb` You can also run `main.ipynb` without model.train() for inferencing only.
 
 
