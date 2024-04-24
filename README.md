@@ -28,12 +28,22 @@ python -m pip install -r requirements.txt
 
 Download the datasets from [here](https://clp.engr.scu.edu/static/datasets/seed_datasets.zip) and upzip the files in the data_provider directory. In the ./data_provider/datasets directory, there should now be 4 stream sensor (file names end with _S_fixed.csv) and 4 rain sensor (file names end with _R_fixed.csv) datasets.
 
-Use parameter `--val_size` to set the number of randomly sampled validation points which will be used in the training process. 
-Use parameter `--train_volume` to set the number of randomly sampled validation points which will be used in the training process. 
-Use parameter `--stack_types` to set the model stacks specified for this sensor. 
-Use parameter `--oversampling` to set the kruskal statistics threshold. 
-Use parameter `--event_focus_level` to set the percent sampled without satisfying the KW threshold. 
-Use parameter `--r_shift` is the shift positions of rain hinter. Set it to 288 if no predicted rain data is provided. Otherwise, set to 0~288 according to the length of known forecasted rain data.
+## Parameters setting
+
+--stream_sensor: 'stream dataset'
+--rain_sensor: 'rain dataset'
+--train_volume: 'train set size'
+--hidden_dim: 'hidden dim of basic layers'
+--cnn_dim: 'hidden dim of cnn layers'
+--layer: 'number of layers'
+--stack_types: 'model stacks specified for this sensor.'
+--r_shift: 'shift positions of rain hinter, set to 288 without any predicted rain value. Otherwise, set to 0~288 according to the length of known forecasted rain data'
+--watershed: '1 if trained with rain info, else 0'
+--model: 'model label'
+--mode: 'set it to train or inference with an existing pt_file'
+--pt_file: 'if set, the model will be loaded from this pt file, otherwise check the file according to the assigned parameters'
+--save: '1 if save the predicted file of testset, else 0'
+
 
 Refer to the annotations in `options.py` for other parameter settings.
 
