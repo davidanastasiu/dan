@@ -31,17 +31,29 @@ Download the datasets from [here](https://clp.engr.scu.edu/static/datasets/seed_
 ## Parameters setting
 
 --stream_sensor: 'stream dataset'
+
 --rain_sensor: 'rain dataset'
+
 --train_volume: 'train set size'
+
 --hidden_dim: 'hidden dim of basic layers'
+
 --cnn_dim: 'hidden dim of cnn layers'
+
 --layer: 'number of layers'
+
 --stack_types: 'model stacks specified for this sensor.'
+
 --r_shift: 'shift positions of rain hinter, set to 288 without any predicted rain value. Otherwise, set to 0~288 according to the length of known forecasted rain data'
+
 --watershed: '1 if trained with rain info, else 0'
---model: 'model label'
+
+--model: 'model name, used to generate the pt file and predicted file names'
+
 --mode: 'set it to train or inference with an existing pt_file'
+
 --pt_file: 'if set, the model will be loaded from this pt file, otherwise check the file according to the assigned parameters'
+
 --save: '1 if save the predicted file of testset, else 0'
 
 
