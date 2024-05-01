@@ -435,7 +435,41 @@ class DAN:
         self.model_load()       
         rmse, mape, i_dir = self.generate_test_rmse_mape() # inference on test set
         return i_dir
-
+        
+    def compute_metrics(self, aa):
+        val_set=pd.read_csv('./data_provider/datasets/test_timestamps_24avg.tsv',sep='\t')
+        val_points=val_set["Hold Out Start"]
+        trainX = pd.read_csv('./data_provider/datasets/'+self.opt.stream_sensor+'.csv', sep='\t')
+        trainX.columns = ["id", "datetime", "value"] 
+        count = 0
+        for test_point in val_points:
+            point = trainX[trainX["datetime"]==test_point].index.values[0]
+            NN = np.isnan(trainX[point-15*24*4:point+3*24*4]["value"]).any() 
+            if not NN:
+                count += 1
+        vals4 = aa
+        # compute metrics
+        all_GT=[]
+        all_DAN=[]
+        loop = 0
+        ind = 0
+        while loop<len(val_points):
+            ii=val_points[loop]
+            val_point=val_points[ind]
+            point=trainX[trainX["datetime"]==ii].index.values[0]
+            x=trainX[point-15*24*4:point+3*24*4]["value"].values.tolist()    
+            if (np.isnan(np.array(x)).any()):
+                loop = loop + 1 # id for time list 
+                continue
+            loop = loop + 1
+            if ind >= count - count%100:
+                break   
+            ind += 1  
+            temp_vals4=list(vals4[ind-1])
+            all_GT.extend(x[15*24*4:])
+            all_DAN.extend(temp_vals4) 
+        metrics = metric_g("DAN", np.array(all_DAN), np.array(all_GT))
+        return metrics
     def train(self):
 
         num_epochs = self.epochs
