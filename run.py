@@ -16,6 +16,7 @@ from sklearn.mixture import GaussianMixture
 from scipy import stats
 from data_provider.DS import * 
 from models.DAN_M import *
+from models.Inference import *
 
 class Options():
    
@@ -94,10 +95,9 @@ class Options():
 
         file_name = os.path.join(expr_dir, 'opt.txt')
         with open(file_name, 'wt') as opt_file:
-#             opt_file.write('------------ Options -------------\n')
             for k, v in sorted(args.items()):
-                opt_file.write('%s|%s\n' % (str(k), str(v)))
-#             opt_file.write('-------------- End ----------------\n')
+                if k != 'arg_file':
+                    opt_file.write('%s|%s\n' % (str(k), str(v)))
         return self.opt
 
     def get_model(self, pt):
@@ -108,21 +108,9 @@ class Options():
         file_name = os.path.join(expr_dir, 'opt.txt')
         self.load_parameters(file_name)
         self.opt.mode = 'inference'        
-                    
-        # data prepare
-        trainX = pd.read_csv('./data_provider/datasets/'+ self.opt.stream_sensor+'.csv', sep='\t')
-        trainX.columns = ["id", "datetime", "value"] 
-        trainX.sort_values('datetime', inplace=True),
-        R_X = pd.read_csv('./data_provider/datasets/'+ self.opt.rain_sensor+'.csv', sep='\t')
-        R_X.columns = ["id", "datetime", "value"] 
-        R_X.sort_values('datetime', inplace=True)
-        ds = DS(self.opt, trainX, R_X)
-        self.ds = ds
-        
         # Load model
-        model = DAN(self.opt,self.ds)
-        model.model_load()
-        
+        model = DAN_I(self.opt)
+        model.model_load()        
         return model
                                  
     def load_parameters(self, arg_file):                                 
@@ -133,8 +121,9 @@ class Options():
             for line in opt_file:
                 value = line.strip().split('|')
                 opt_dic[value[0]] = value[1]
+        opt_dic['arg_file'] = ''
         opt_file.close()
-        print(opt_dic)
+#         print(opt_dic)
         args = vars(self.opt)
         for k, v in sorted(args.items()):
             n = 'self.opt.' + str(k)
@@ -197,7 +186,8 @@ class Options():
             elif n == "self.opt.out_f": 
                     self.opt.out_f = str(val)  
             elif n == "self.opt.val_seed": 
-                    self.opt.val_seed = int(val)                                 
+                    self.opt.val_seed = int(val)
+            self.opt.name = self.opt.model
 
 if __name__ == '__main__':
     opt = Options().parse()
