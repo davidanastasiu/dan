@@ -1,7 +1,3 @@
-# Hard Train......................
-#!/usr/bin/env python
-# coding: utf-8
-
 import time,os,sys
 import math
 
@@ -19,6 +15,7 @@ from models.DecoderLSTM import *
 from models.ResidueLSTM import *
 from sklearn.metrics import mean_absolute_percentage_error
 from datetime import datetime, timedelta
+import zipfile
 import logging
 from metric import *
 logging.basicConfig(filename = "DAN_M.log", filemode='w', level = logging.DEBUG)
@@ -28,6 +25,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class DAN:
 
     def __init__(self, opt, dataset):
+#         super(DAN, self).__init__(opt)
 
         self.logger = logging.getLogger()
         self.logger.info("I am logging...")
@@ -35,7 +33,8 @@ class DAN:
         self.opt = opt
         self.sensor_id = opt.stream_sensor
         self.dataloader = dataset.get_train_data_loader()
-        self.val_data = np.array(dataset.get_val_points()).squeeze(1)
+        if self.opt.mode == 'train':
+            self.val_data = np.array(dataset.get_val_points()).squeeze(1)
         self.trainX = dataset.get_trainX()
         self.data = dataset.get_data()
         self.sensor_data_norm = dataset.get_sensor_data_norm()
@@ -171,9 +170,8 @@ class DAN:
             print(pre_gt)
 
         test_predict = np.array(self.std_denorm_dataset(y_predict, pre_gt))
-        diff_predict = []
         test_predict = (test_predict + abs(test_predict))/2
-        return test_predict, y, diff_predict
+        return test_predict, y
 
     def test_single_new(self, test_point, rain_data):
         
@@ -251,7 +249,7 @@ class DAN:
             
             val_pred_list_print = []
             val_point = val_points[i]
-            test_predict, ground_truth, _ = self.test_single(val_point)  
+            test_predict, ground_truth = self.test_single(val_point)  
             rec_predict = test_predict
             
             for j in range(len(rec_predict)):
@@ -297,7 +295,7 @@ class DAN:
             watersheds = "ProbFeature"
                 
         basic_path = self.val_dir + '/' + str(self.sensor_id) + OS
-        basic_model_path = self.expr_dir + '/' + str(self.sensor_id) + OS    
+ 
         
         if total < min_RMSE:
 
@@ -305,11 +303,15 @@ class DAN:
             aa.to_csv(basic_path + '_' + watersheds + str(self.TrainEnd) + '_pred_lists_print.tsv', sep = '\t')
 
             #save_model
-            net_name = basic_model_path + '_' + watersheds + str(self.TrainEnd) + "_net.pt"
-    
-            new_min_RMSE = total
-            torch.save(self.net.state_dict(), net_name)
-    
+            net_name = self.expr_dir + '/' + 'DAN.pt'    
+            new_min_RMSE = total        
+            expr_dir = os.path.join(self.opt.outf, self.opt.name, 'train')
+            c_dir = os.getcwd()
+            os.chdir(expr_dir)          
+            with zipfile.ZipFile(self.opt.name+".zip", "w") as my_zip:
+                with my_zip.open("DAN.pt", "w") as data_file:
+                    torch.save(self.net.state_dict(), data_file)
+            os.chdir(c_dir)                
         print("val total RMSE: ", total)
         print("val min RMSE: ", new_min_RMSE)
 
@@ -321,30 +323,16 @@ class DAN:
         return total, new_min_RMSE, mape
     
     def model_load(self):
-        
-        if(self.is_over_sampling == 1):
-            OS = "_OS" + str(self.opt.event_focus_level)
-        else:
-            OS = "_OS-null"
 
-        if(self.is_watersheds == 1) :
-            if(self.is_prob_feature == 0) :
-                watersheds = "shed"
-            else:
-                watersheds = "Shed-ProbFeature"
-        elif(self.is_prob_feature == 0) :
-            watersheds = "solo"
-        else:
-            watersheds = "ProbFeature"
-        
-        basic_path = self.test_dir + '/' + str(self.sensor_id) + OS
-        basic_model_path = self.expr_dir + '/' + str(self.sensor_id) + OS 
-        net_name = basic_model_path + '_' + watersheds + str(self.TrainEnd) + "_net.pt"
-
+        c_dir = os.getcwd()
+        os.chdir(self.expr_dir) 
         model = DANet(self.opt, stack_types=self.stack_types)
-        model.load_state_dict(torch.load(net_name), strict=False)
+        with zipfile.ZipFile(self.opt.name +'.zip', "r") as archive:
+            with archive.open("DAN.pt","r") as pt_file:
+                model.load_state_dict(torch.load(pt_file), strict=False)
+                print("Importing the best pt file:", pt_file)
+        os.chdir(c_dir)
         self.net = model
-    
     
     def generate_test_rmse_mape(self):
         
@@ -363,8 +351,7 @@ class DAN:
             start = time.time()
             val_pred_list_print = []
             val_point = val_points[i]
-            test_predict, ground_truth, _ = self.test_single(val_point)  
-            test_predict = (test_predict + abs(test_predict))/2
+            test_predict, ground_truth = self.test_single(val_point)  
             rec_predict = test_predict
             val_MSE = np.square(np.subtract(ground_truth, test_predict)).mean() 
             val_RMSE = math.sqrt(val_MSE)
@@ -403,23 +390,25 @@ class DAN:
         basic_path = self.test_dir + '/' + str(self.sensor_id) + OS
         basic_model_path = self.expr_dir + '/' + str(self.sensor_id) + OS    
         
-        aa = pd.DataFrame(data = val_pred_lists_print)
-        i_dir = basic_path + '_' + watersheds + str(self.TrainEnd) + '_pred_lists_print.tsv'
-        aa.to_csv(i_dir, sep = '\t')
-        print("Inferencing result is saved in: ", i_dir)
+        if self.opt.save == 1:
+            aa = pd.DataFrame(data = val_pred_lists_print)
+            i_dir = basic_path + '_' + watersheds + str(self.TrainEnd) + '_pred_lists_print.tsv'
+            aa.to_csv(i_dir, sep = '\t')
+            print("Inferencing result is saved in: ", i_dir)
 
         if non_flag == 0:
             mape = mean_absolute_percentage_error(np.array(gt_mape_list)+1, np.array(val_mape_list)+1)
         else:
-            mape = 100            
-        return total,  mape, i_dir
+            mape = 100
+            
+        return total,  mape,  val_pred_lists_print
+
     
     def inference(self): 
         start = time.time()
         self.dataset.gen_test_data() # generate test points file and test_data
         end = time.time()
         print("generate test points file and test_data: ", end-start)
-        
         # refresh the related values
         self.test_data = np.array(self.dataset.get_test_points()).squeeze(1) # read the test set
         self.data = self.dataset.get_data()
@@ -430,12 +419,10 @@ class DAN:
         self.std = self.dataset.get_std()
         self.month = self.dataset.get_month()
         self.day = self.dataset.get_day()
-        self.hour = self.dataset.get_hour()
-        
-        self.model_load()       
-        rmse, mape, i_dir = self.generate_test_rmse_mape() # inference on test set
-        return i_dir
-        
+        self.hour = self.dataset.get_hour()   
+        rmse, mape, aa = self.generate_test_rmse_mape() # inference on test set
+        return aa
+
     def compute_metrics(self, aa):
         val_set=pd.read_csv('./data_provider/datasets/test_timestamps_24avg.tsv',sep='\t')
         val_points=val_set["Hold Out Start"]
@@ -470,6 +457,8 @@ class DAN:
             all_DAN.extend(temp_vals4) 
         metrics = metric_g("DAN", np.array(all_DAN), np.array(all_GT))
         return metrics
+
+
     def train(self):
 
         num_epochs = self.epochs
@@ -586,4 +575,5 @@ class DAN:
             adjust_learning_rate(self.optimizer, epoch + 1, self.opt)
                                 
 
+    
 
