@@ -17,6 +17,7 @@ from scipy import stats
 from data_provider.DS import * 
 from models.DAN_M import *
 from models.Inference import *
+import zipfile
 
 class Options():
    
@@ -101,16 +102,23 @@ class Options():
         return self.opt
 
     def get_model(self, pt):
+        
+        pt_file = os.path.basename(pt)
+        pt_dir = os.path.dirname(pt)
         self.opt = self.parser.parse_known_args()[0]
-        self.opt.model = pt
-        # import model parameters
-        expr_dir = os.path.join(self.opt.outf, pt, 'train')
-        file_name = os.path.join(expr_dir, 'opt.txt')
-        self.load_parameters(file_name)
-        self.opt.mode = 'inference'        
+        self.opt.model = str(pt_file[:-4])  
+        c_dir = os.getcwd()
+        print('current dir: ', c_dir)
+        os.chdir(pt_dir) 
+        with zipfile.ZipFile(pt_file, "r") as file:
+            file.extract("opt.txt")
+            self.load_parameters('opt.txt')
+            self.opt.mode = 'inference'
+        os.remove('opt.txt')          
         # Load model
         model = DAN_I(self.opt)
-        model.model_load()        
+        model.model_load(pt_file)  
+        os.chdir(c_dir) 
         return model
                                  
     def load_parameters(self, arg_file):                                 
@@ -205,12 +213,26 @@ if __name__ == '__main__':
     model = DAN(opt,ds)
     model.train()
 
-    # Inferencing, saving the result to Inference_dir
+    # Inferencing, saving the result to Inference_dir      
     ds.refresh_dataset(trainX, R_X)
-    model.model_load()
+    model.model_load()      
     Inference_result = model.inference()
 
     # Computing RMSE and MAPE
     metrics = model.compute_metrics(Inference_result)
     print("RMSE: ", np.array(metrics[0][0]))
     print("MAPE: ", np.array(metrics[1][0]))
+    
+    # Save the model
+    expr_dir = os.path.join(opt.outf, opt.name, 'train')
+    c_dir = os.getcwd()
+    os.chdir(expr_dir)  
+    with zipfile.ZipFile(opt.name +'.zip', 'a') as zipped_f:
+        zipped_f.write('opt.txt')
+        zipped_f.write('GMM.pt')
+        zipped_f.write('Norm.txt')
+    print("Model saved in: ", expr_dir+'/'+ opt.name + '.zip')
+    os.remove('opt.txt') 
+    os.remove('GMM.pt') 
+    os.remove('Norm.txt') 
+    os.chdir(c_dir)
