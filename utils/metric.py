@@ -44,14 +44,6 @@ def metric_g(name, pre, gt):
     mse_all = []
     rmse_all = []
     mape_all = []
-    # mae_h = []
-    # mse_h = []
-    # rmse_h = []
-    # mape_h = []
-    # mae_l = []
-    # mse_l = []
-    # rmse_l = []
-    # mape_l = []
     l2 = []
     l3 = []
     lll=[]
@@ -59,21 +51,8 @@ def metric_g(name, pre, gt):
         mae, mse, rmse, mape = metric(name, pre[i*288:(i+1)*288], gt[i*288:(i+1)*288])
         rmse_all.append(rmse)
         mape_all.append(mape)
-        # if np.max(gt[i*288:(i+1)*288]) > mean:
-        #     rmse_h.append(rmse)
-        #     mape_h.append(mape)
-        # else:
-        #     rmse_l.append(rmse)
-        #     mape_l.append(mape)        
-    # print(name, " average: ", "h: ", len(rmse_h), " l: ", len(rmse_l))
     l2.append(np.around(np.mean(np.array(rmse_all)),2))
-    # l2.append(np.around(np.mean(np.array(rmse_h)),2))
-    # l2.append(np.around(np.mean(np.array(rmse_l)),2))
     l3.append(np.around(np.mean(np.array(mape_all)),3))
-    # l3.append(np.around(np.mean(np.array(mape_h)),3))
-    # l3.append(np.around(np.mean(np.array(mape_l)),3))
     lll.append(l2)
     lll.append(l3)
-    # print(np.array(lll[0]))
-    # print(np.array(lll[1]))
     return lll
