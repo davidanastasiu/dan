@@ -1,0 +1,33 @@
+batchsize|48
+cnn_dim|256
+epochs|50
+event_focus_level|18
+gpu_id|0
+hidden_dim|384
+input_dim|1
+input_len|1440
+layer|1
+learning_rate|0.001
+lradj|type4
+mode|train
+model|Ross_noRain
+outf|./output
+output_dim|1
+output_len|288
+oversampling|80
+pt_file|
+r_shift|288
+rain_sensor|Ross_R_fixed
+save|0
+stack_types|"encoder","decoder","encoder","decoder","residue","residue"
+start_point|1988-01-01 14:30:00
+stream_sensor|Ross_S_fixed
+test_end|2022-05-31 23:30:00
+test_start|2021-09-01 00:30:00
+train_point|2021-08-31 23:30:00
+train_seed|1010
+train_volume|30000
+val_seed|2007
+val_size|120
+watershed|0
+arg_file|
