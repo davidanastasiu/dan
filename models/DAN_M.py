@@ -17,7 +17,7 @@ from sklearn.metrics import mean_absolute_percentage_error
 from datetime import datetime, timedelta
 import zipfile
 import logging
-from metric import *
+from utils.metric import *
 logging.basicConfig(filename = "DAN_M.log", filemode='w', level = logging.DEBUG)
 random.seed('a')
 
