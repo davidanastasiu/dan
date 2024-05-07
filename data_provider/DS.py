@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
 import numpy as np
 import random
 import pandas as pd
@@ -12,6 +7,7 @@ import sklearn
 from sklearn.mixture import GaussianMixture
 from scipy import stats
 import torch
+import zipfile
 
 class DS:
 
@@ -69,8 +65,6 @@ class DS:
         self.sensor_id = opt.stream_sensor
         
         self.read_dataset()
-        self.val_dataloader()
-        self.train_dataloader()
         
         # save mean and std of dataset
         norm = []
@@ -78,10 +72,14 @@ class DS:
         norm.append(self.get_std())
         norm.append(self.get_R_mean())
         norm.append(self.get_R_std())
-        np.savetxt(self.expr_dir + '/' + str(self.sensor_id) + '_Norm.txt', norm)
-        norm = np.loadtxt(self.expr_dir + '/' + str(self.sensor_id) + '_Norm.txt',dtype=float,delimiter=None)
+        np.savetxt(self.expr_dir + '/' + 'Norm.txt', norm)
+        norm = np.loadtxt(self.expr_dir + '/' + 'Norm.txt',dtype=float,delimiter=None)           
         print("norm is: ", norm)
-        
+        if self.opt.mode == 'train':
+            self.val_dataloader()
+            self.train_dataloader()
+        else:
+            self.refresh_dataset(trainX,R_X)
     def get_trainX(self):
         
         return self.trainX
@@ -194,7 +192,7 @@ class DS:
                     clean_data.append(self.data[ii])
             sensor_data_prob = np.array(clean_data).reshape(-1, 1)           
             self.gm3.fit(sensor_data_prob)
-            torch.save(self.gm3, self.expr_dir + '/' + str(self.sensor_id) + 'GMM.pt') 
+            torch.save(self.gm3, self.expr_dir + '/' + 'GMM.pt') 
             print("gm3.means are: ", self.gm3.means_)
             print("gm3.covariances are: ", self.gm3.covariances_)
             print("gm3.weights are: ", self.gm3.weights_)
@@ -206,7 +204,7 @@ class DS:
             prob_like_outlier3 = prob_like_outlier3.reshape((len(sensor_data_prob), 1))
             
             recover_data = []
-            temp = [0.5]
+            temp = [0.5] # use to fill nan value, which will not be selected into the train and validation data set.
             jj = 0
             for ii in range(len(self.data)):
                 if (self.data[ii] is not None) and (np.isnan(self.data[ii]) != 1):
@@ -406,11 +404,9 @@ class DS:
         self.R_X = R_X
         # read sensor data to vector
         start_num = self.trainX[self.trainX["datetime"]==self.opt.start_point].index.values[0]
-        print("for sensor ", self.opt.stream_sensor, "start_num is: ", start_num)
         idx_num = 0
         #foot label of train_end
         train_end = self.trainX[self.trainX["datetime"]==self.opt.train_point].index.values[0] - start_num 
-        print("train set length is : ", train_end)
         
         #the whole dataset
         k = self.trainX[self.trainX["datetime"]==self.test_end_time].index.values[0]
@@ -451,10 +447,10 @@ class DS:
         if  (self.opt_hinter_dim >= 1):
             # read Rain data to vector
             R_start_num = self.R_X[self.R_X["datetime"]==self.opt.start_point].index.values[0]
-            print("for sensor ", self.opt.rain_sensor, "start_num is: ", R_start_num)
+#             print("for sensor ", self.opt.rain_sensor, "start_num is: ", R_start_num)
             R_idx_num = 0
             R_train_end = self.R_X[self.R_X["datetime"]==self.opt.train_point].index.values[0] - R_start_num 
-            print("R_X set length is : ", R_train_end)
+#             print("R_X set length is : ", R_train_end)
  
             R_k = self.R_X[self.R_X["datetime"]==self.test_end_time].index.values[0]
             R_f = self.R_X[self.R_X["datetime"]==self.test_start_time].index.values[0]        
