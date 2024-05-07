@@ -1,8 +1,3 @@
-# Inference......................
-#!/usr/bin/env python
-# coding: utf-8
-
-
 import time,os,sys
 import math
 
@@ -20,6 +15,7 @@ from models.DecoderLSTM import *
 from models.ResidueLSTM import *
 from sklearn.metrics import mean_absolute_percentage_error
 from datetime import datetime, timedelta
+import zipfile
 import logging
 logging.basicConfig(filename = "Inference.log", filemode='w', level = logging.DEBUG)
 random.seed('a')
@@ -32,8 +28,7 @@ class DAN_I:
         self.logger = logging.getLogger()
         self.logger.info("I am logging...")
         self.opt = opt
-        self.sensor_id = opt.stream_sensor
-        
+        self.sensor_id = opt.stream_sensor       
         self.train_days = opt.input_len
         self.predict_days = opt.output_len  
         self.output_dim = opt.output_dim
@@ -70,25 +65,17 @@ class DAN_I:
 
         self.expr_dir = os.path.join(self.opt.outf, self.opt.name, 'train')
         self.val_dir = os.path.join(self.opt.outf, self.opt.name, 'val')
-        self.test_dir = os.path.join(self.opt.outf, self.opt.name, 'test')
-        
-        norm = np.loadtxt(self.expr_dir + '/' + str(self.sensor_id) + '_Norm.txt',dtype=float,delimiter=None)
-        print("norm is: ", norm)
-
-        self.mean = norm[0]
-        self.std = norm[1]
-        self.R_mean = norm[2]
-        self.R_std = norm[3]
-        
+        self.test_dir = os.path.join(self.opt.outf, self.opt.name, 'test')        
 
     def std_denorm_dataset(self, predict_y0):
+        
         pre_y = []
         a2 = log_std_denorm_dataset(self.mean, self.std, predict_y0, pre_y)
 
         return a2
 
-    def inference_test(self, x_test, y_input1, y_input2):
-                                
+    def inference_test(self, x_test, y_input1, y_input2):     
+        
         y_predict = []
         d_out = torch.tensor([]).to(device)
         self.net.eval()
@@ -108,32 +95,64 @@ class DAN_I:
         return y_predict
 
 
-    def model_load(self):
+    def model_load(self,zipf):       
         
-        if(self.is_over_sampling == 1):
-            OS = "_OS" + str(self.opt.event_focus_level)
-        else:
-            OS = "_OS-null"
+        with zipfile.ZipFile(zipf, "r") as file:
+            file.extract("Norm.txt")
+        norm = np.loadtxt('Norm.txt',dtype=float,delimiter=None)
+        os.remove('Norm.txt')
+        print("norm is: ", norm)
+        self.mean = norm[0]
+        self.std = norm[1]
+        self.R_mean = norm[2]
+        self.R_std = norm[3]
+         
+        with zipfile.ZipFile(zipf, "r") as archive:
+            with archive.open("DAN.pt","r") as pt_file:
+                self.net.load_state_dict(torch.load(pt_file), strict=False)                         
+        with zipfile.ZipFile(zipf, "r") as archive:
+            with archive.open("GMM.pt","r") as pt_file:
+                self.gm3 = torch.load(pt_file)  
 
-        if(self.is_watersheds == 1) :
-            if(self.is_prob_feature == 0) :
-                watersheds = "shed"
-            else:
-                watersheds = "Shed-ProbFeature"
-        elif(self.is_prob_feature == 0) :
-            watersheds = "solo"
-        else:
-            watersheds = "ProbFeature"
+    def get_data(self, test_point):
         
-        basic_path = self.test_dir + '/' + str(self.sensor_id) + OS
-        basic_model_path = self.expr_dir + '/' + str(self.sensor_id) + OS 
-        net_name = basic_model_path + '_' + watersheds + str(self.TrainEnd) + "_net.pt"
-
-        model = DANet(self.opt, stack_types=self.stack_types)
-        model.load_state_dict(torch.load(net_name), strict=False)
+        print("test_point is: ", test_point)
+        # data prepare
+        trainX = pd.read_csv('./data_provider/datasets/'+ self.opt.stream_sensor+'.csv', sep='\t')
+        trainX.columns = ["id", "datetime", "value"] 
+        trainX.sort_values('datetime', inplace=True),
+        R_X = pd.read_csv('./data_provider/datasets/'+ self.opt.rain_sensor+'.csv', sep='\t')
+        R_X.columns = ["id", "datetime", "value"] 
+        R_X.sort_values('datetime', inplace=True)
         
-        self.net = model        
-        self.gm3 = torch.load(self.expr_dir + '/' + str(self.sensor_id) + 'GMM.pt')
+        # read stream data        
+        point = trainX[trainX["datetime"]==test_point].index.values[0]
+        stream_data = trainX[point-15*24*4:point]["value"].values.tolist()
+        gt = trainX[point:point+3*24*4]["value"].values.tolist()
+        NN = np.isnan(stream_data).any() 
+        if NN:
+            print("There is None value in the stream input sequence.")  
+        NN = np.isnan(gt).any() 
+        if NN:
+            print("There is None value in the ground truth sequence.")  
+        
+        # read rain data
+        R_X = pd.read_csv('./data_provider/datasets/'+self.opt.rain_sensor+'.csv', sep='\t')
+        R_X.columns = ["id", "datetime", "value"] 
+        point = R_X[R_X["datetime"]==test_point].index.values[0]
+        rain_data = R_X[point-self.opt.r_shift:point-self.opt.r_shift+288]["value"].values.tolist()
+        NN = np.isnan(rain_data).any() 
+        if NN:
+            print("There is None value in the rain input sequence.")      
+       
+        return stream_data, rain_data, gt
+    
+    def test_single(self, test_point):
+        
+        stream_data, indicator_data, gt = self.get_data(test_point)  
+        pre = self.predict(test_point, stream_data, indicator_data)
+        
+        return pre, gt
     
     def predict(self, test_point, stream_data, rain_data=None):
         
