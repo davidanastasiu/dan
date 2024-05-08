@@ -58,7 +58,7 @@ Download the datasets from [here](https://clp.engr.scu.edu/static/datasets/seed_
 
 --outf: default value is './output', the model will be saved in the train folder in this directory.
 
-Refer to the annotations in `run.py` for other parameter settings.
+Refer to the annotations in `run.py` for other parameter settings. Default parameters for reproducing are set in the files (file names start with opt and end with .txt) under './models'.
 
 ## Training and Inferencing
 
