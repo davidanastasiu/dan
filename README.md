@@ -30,34 +30,35 @@ Download the datasets from [here](https://clp.engr.scu.edu/static/datasets/seed_
 
 ## Parameters setting
 
---stream_sensor: 'stream dataset'
+--stream_sensor: stream dataset file name. The file should be csv file.
 
---rain_sensor: 'rain dataset'
+--rain_sensor: rain dataset file name. The file should be csv file.
 
---train_volume: 'train set size'
+--train_volume: train set size.
 
---hidden_dim: 'hidden dim of basic layers'
+--hidden_dim: hidden dim of lstm layers.
 
---cnn_dim: 'hidden dim of cnn layers'
+--cnn_dim: hidden dim of cnn layers.
 
---layer: 'number of layers'
+--layer: number of layers.
 
---stack_types: 'model stacks specified for this sensor.'
+--stack_types: model stacks specified for this sensor. It should be a stack of encoder, decoder and residue.
 
---r_shift: 'shift positions of rain hinter, set to 288 without any predicted rain value. Otherwise, set to 0~288 according to the length of known forecasted rain data'
+--r_shift: shift positions of rain hinter, set to 288 without any predicted rain value. Otherwise, set to 0~288 according to the length of known forecasted rain data.
 
---watershed: '1 if trained with rain info, else 0'
+--watershed: 1 if trained with rain info, else 0.
 
---model: 'model name, used to generate the pt file and predicted file names'
+--model: model name, used to generate the pt file and predicted file names.
 
---mode: 'set it to train or inference with an existing pt_file'
+--mode: set it to 'train' or 'inference' with an existing pt_file.
 
---pt_file: 'if set, the model will be loaded from this pt file, otherwise check the file according to the assigned parameters'
+--pt_file: if set, the model will be loaded from this pt file, otherwise check the file according to the assigned parameters.
 
---save: '1 if save the predicted file of testset, else 0'
+--save: if save the predicted file of testset, set to 1, else 0.
 
+--outf: default value is './output', the model will be saved in the train folder in this directory.
 
-Refer to the annotations in `options.py` for other parameter settings.
+Refer to the annotations in `run.py` for other parameter settings.
 
 ## Training and Inferencing
 
