@@ -61,7 +61,7 @@ Refer to the annotations in `options.py` for other parameter settings.
 
 ## Training and Inferencing
 
-Run experiments.ipynb to train the model and make inferences on the test set of 4 stream datasets mentioned in the paper.
+Run experiments.ipynb to train the models and make inferences on the test set of 4 stream datasets mentioned in the paper.
 
 
 
