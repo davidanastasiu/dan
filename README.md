@@ -62,9 +62,9 @@ Refer to the annotations in `run.py` for other parameter settings. Default param
 
 ## Training and Inferencing
 
-Run experiments.ipynb to train the models and make inferences on the test set of 4 stream datasets mentioned in the paper.
+Execute the Jupyter notebook experiments.ipynb to train models and conduct inferences on the test sets of the four stream datasets described in the associated paper.
 
-The Jupyter notebook example.ipynb demonstrates how to train a model via command line commands and use specific model functions to perform inference on the SFC sensor dataset.
+The Jupyter notebook example.ipynb shows how to train a model via command line commands and use specific model functions to perform inference on the SFC sensor dataset.
 
 
 
