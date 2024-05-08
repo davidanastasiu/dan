@@ -64,5 +64,7 @@ Refer to the annotations in `run.py` for other parameter settings.
 
 Run experiments.ipynb to train the models and make inferences on the test set of 4 stream datasets mentioned in the paper.
 
+The Jupyter notebook example.ipynb demonstrates how to train a model via command line commands and use specific model functions to perform inference on the SFC sensor dataset.
+
 
 
