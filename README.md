@@ -61,13 +61,7 @@ Refer to the annotations in `options.py` for other parameter settings.
 
 ## Training and Inferencing
 
-run `main-Saratoga.ipynb` for sensor Saratoga.
-
-run `main-SFC.ipynb` for sensor SFC.
-
-run `main-ROSS.ipynb` for sensor ROSS.
-
-run `main-UpperPen.ipynb` for sensor UpperPen.
+Run experiments.ipynb to train the model and make inferences on the test set of 4 stream datasets mentioned in the paper.
 
 
 
