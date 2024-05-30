@@ -128,5 +128,12 @@ def adjust_learning_rate(optimizer, epoch, args):
         print('Updating learning rate to {}'.format(lr))
 
 
+def plot(gt,pre):    
+    plt.figure(figsize=(15,3))
+    plt.ylim(-1,900)
+    plt.xlabel('time ( hours )')
+    plt.ylabel('streamflow')
+    plt.plot(np.array(gt),'black',label="Ground Truth")
+    plt.plot(np.array(pre),'blue',label="Predicted")
 
 
