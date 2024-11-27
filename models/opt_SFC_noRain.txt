@@ -13,7 +13,6 @@ mode|train
 model|SFC_noRain
 outf|./output
 output_dim|1
-output_len|288
 oversampling|80
 pt_file|
 r_shift|288

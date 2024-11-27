@@ -55,7 +55,6 @@ class DAN:
         self.TrainEnd = opt.model
         self.opt_hinter_dim = opt.watershed
         self.os = 1
-        self.r_shift = opt.r_shift
         ENCODER_BLOCK = 'encoder'
         DECODER_BLOCK = 'decoder'
         RESIDUE_BLOCK = 'residue'
@@ -156,7 +155,7 @@ class DAN:
         else:
             x_test = np.array(norm_data[test_point-self.train_days*1:test_point], np.float32).reshape(self.train_days,-1)
         y_test = np.array(norm_data[test_point:test_point+self.predict_days], np.float32).reshape(self.predict_days,-1)
-        y4 = np.array(self.R_norm_data[test_point-self.r_shift:test_point+self.predict_days-self.r_shift], np.float32).reshape(self.predict_days,-1)
+        y4 = np.array(self.R_norm_data[test_point-self.predict_days:test_point+self.predict_days-self.predict_days], np.float32).reshape(self.predict_days,-1)
         x_test = [x_test]
         y_input2 = [y4]
                 
@@ -431,7 +430,7 @@ class DAN:
         count = 0
         for test_point in val_points:
             point = trainX[trainX["datetime"]==test_point].index.values[0]
-            NN = np.isnan(trainX[point-15*24*4:point+3*24*4]["value"]).any() 
+            NN = np.isnan(trainX[point-self.train_days:point+self.predict_days]["value"]).any() 
             if not NN:
                 count += 1
         vals4 = aa
@@ -444,7 +443,7 @@ class DAN:
             ii=val_points[loop]
             val_point=val_points[ind]
             point=trainX[trainX["datetime"]==ii].index.values[0]
-            x=trainX[point-15*24*4:point+3*24*4]["value"].values.tolist()    
+            x=trainX[point-self.train_days:point+self.predict_days]["value"].values.tolist()    
             if (np.isnan(np.array(x)).any()):
                 loop = loop + 1 # id for time list 
                 continue
@@ -453,7 +452,7 @@ class DAN:
                 break   
             ind += 1  
             temp_vals4=list(vals4[ind-1])
-            all_GT.extend(x[15*24*4:])
+            all_GT.extend(x[self.train_days:])
             all_DAN.extend(temp_vals4) 
         metrics = metric_g("DAN", np.array(all_DAN), np.array(all_GT))
         return metrics
@@ -531,10 +530,7 @@ class DAN:
                 loss3 = self.criterion(torch.mul(out1,weights1), torch.mul(y_train,weights1)) 
               
                 # ind                
-                if self.r_shift == 0: # if reliable indicator is provided, we won't involve it in the training
-                    loss2 = 0
-                else:
-                    loss2 = self.criterion(torch.mul(Ind,weights2), torch.mul(Ind_g,weights2))
+                loss2 = self.criterion(torch.mul(Ind,weights2), torch.mul(Ind_g,weights2))
 
                 loss4 = self.criterion(torch.mul(out2,weights2), torch.mul(y_train,weights2))
     

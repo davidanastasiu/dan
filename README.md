@@ -44,8 +44,6 @@ Download the datasets from [here](https://clp.engr.scu.edu/static/datasets/seed_
 
 --stack_types: model stacks specified for this sensor. It should be a stack of encoder, decoder and residue.
 
---r_shift: shift positions of rain hinter, set to 288 without any predicted rain value. Otherwise, set to 0~288 according to the length of known forecasted rain data.
-
 --watershed: 1 if trained with rain info, else 0.
 
 --model: model name, used to generate the pt file and predicted file names.

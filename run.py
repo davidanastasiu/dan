@@ -55,11 +55,10 @@ class Options():
         self.parser.add_argument('--train_point', type=str, default='2021-08-31 23:30:00', help='end time of the train set')
         self.parser.add_argument('--test_start', type=str, default='2021-09-01 00:30:00', help='start time of the test set')
         self.parser.add_argument('--test_end', type=str,  default='2022-05-31 23:30:00', help='end time of the test set')
-        self.parser.add_argument('--r_shift', type=int, default=0, help='shift positions of rain hinter, set to 288 without any predicted rain value. Otherwise, set to 0~288 according to the length of known forecasted rain data')
         self.parser.add_argument('--watershed', type=int, default=1, help='1 if trained with rain info, else 0')
         
         self.parser.add_argument('--gpu_id', type=int, default=1, help='gpu ids: e.g. 0. use -1 for CPU')       
-        self.parser.add_argument('--model', type=str, default="SFC_withRain_shift", help='model label')
+        self.parser.add_argument('--model', type=str, default="SFC_withRain", help='model label')
         self.parser.add_argument('--mode',type=str, default='train',help='set it to train or inference with an existing pt_file') 
         self.parser.add_argument('--pt_file', type=str, default='', help='if set, the model will be loaded from this pt file, otherwise check the file according to the assigned parameters')
         self.parser.add_argument('--arg_file', type=str, default='', help='.txt file. If set, reset the default parameters defined in this file.')
@@ -149,8 +148,6 @@ class Options():
                     self.opt.cnn_dim = int(val)        
             elif n == "self.opt.layer": 
                     self.opt.layer = int(val)
-            elif n == "self.opt.r_shift": 
-                    self.opt.r_shift = int(val)  
             elif n == "self.opt.watershed": 
                     self.opt.watershed = int(val)                                   
             elif n == "self.opt.train_seed": 

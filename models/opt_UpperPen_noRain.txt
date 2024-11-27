@@ -16,7 +16,6 @@ output_dim|1
 output_len|288
 oversampling|80
 pt_file|
-r_shift|288
 rain_sensor|UpperPen_R_fixed
 save|0
 stack_types|"encoder","decoder","encoder","decoder","residue","residue"

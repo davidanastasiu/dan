@@ -37,7 +37,6 @@ class DAN_I:
         self.is_prob_feature = 1
         self.TrainEnd = opt.model
         self.opt_hinter_dim = opt.watershed
-        self.r_shift = opt.r_shift
         ENCODER_BLOCK = 'encoder'
         DECODER_BLOCK = 'decoder'
         RESIDUE_BLOCK = 'residue'
@@ -127,8 +126,8 @@ class DAN_I:
         
         # read stream data        
         point = trainX[trainX["datetime"]==test_point].index.values[0]
-        stream_data = trainX[point-15*24*4:point]["value"].values.tolist()
-        gt = trainX[point:point+3*24*4]["value"].values.tolist()
+        stream_data = trainX[point-self.train_days:point]["value"].values.tolist()
+        gt = trainX[point:point+self.predict_days]["value"].values.tolist()
         NN = np.isnan(stream_data).any() 
         if NN:
             print("There is None value in the stream input sequence.")  
@@ -140,7 +139,7 @@ class DAN_I:
         R_X = pd.read_csv('./data_provider/datasets/'+self.opt.rain_sensor+'.csv', sep='\t')
         R_X.columns = ["id", "datetime", "value"] 
         point = R_X[R_X["datetime"]==test_point].index.values[0]
-        rain_data = R_X[point-self.opt.r_shift:point-self.opt.r_shift+288]["value"].values.tolist()
+        rain_data = R_X[point-self.predict_days:point]["value"].values.tolist()
         NN = np.isnan(rain_data).any() 
         if NN:
             print("There is None value in the rain input sequence.")      

@@ -24,7 +24,6 @@ class DecoderLSTM(nn.Module):
         super(DecoderLSTM, self).__init__()
         self.hidden_dim = opt.hidden_dim
         self.layer_dim = opt.layer
-        self.r_shift = opt.r_shift
         self.h_style_hr = 1
         
         self.lstm00 = nn.LSTM(2, self.hidden_dim, self.layer_dim, bidirectional=True, batch_first=True)
@@ -60,16 +59,8 @@ class DecoderLSTM(nn.Module):
         out03 = self.L_out03(o3)
         out3 = torch.squeeze(out03, dim=2)        
 
-        # If there is a weak hinter, the model try to generate a trainable hinter from last r_shift length of rain data
-        if (self.r_shift > 0):
-            """
-            As a weak hinter, use trained hidden state to help predict.   
-            """ 
-            o1, (hn, cn) = self.lstm01(x1, (h2,c2))
-        else:
-            h0 = torch.zeros(self.layer_dim*2, x2.size(0), self.hidden_dim).to(device)
-            c0 = torch.zeros(self.layer_dim*2, x2.size(0), self.hidden_dim).to(device) 
-            o1, (hn, cn) = self.lstm02(x2, (h0,c0)) 
+        o1, (hn, cn) = self.lstm01(x1, (h2,c2))
+
 
         """
         Indicator refine layer

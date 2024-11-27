@@ -38,7 +38,6 @@ class DS:
         self.test_start_time = self.opt.test_start
         self.test_end_time = self.opt.test_end
         self.opt_hinter_dim = self.opt.watershed
-        self.r_shift = opt.r_shift
         self.gm3 = GaussianMixture(n_components=3,)
         
         self.is_over_sampling = 0
@@ -269,7 +268,7 @@ class DS:
             ii = 0
             while ii < self.opt.val_size:
             
-                i = random.randint(3*24*4, len(self.data)-93*24*4-1)
+                i = random.randint(self.predict_days, len(self.data)-31*self.predict_days-1)
                 # Hydro year is from September to May, for all experiments and all methods.
                 if (not np.isnan(self.data[i:i+self.lens]).any()) and (not np.isnan(self.R_data[i:i+self.lens]).any())  and (self.tag[i+self.train_days] <= -9 or -6 < self.tag[i+self.train_days] < 0 or 2 <= self.tag[i+self.train_days] <= 3 ): 
 
@@ -277,7 +276,6 @@ class DS:
                     label0 = np.array(self.sensor_data_norm[(i+self.train_days):(i+self.train_days+self.predict_days)]) 
                     label01 = np.array(self.data[(i+self.train_days):(i+self.train_days+self.predict_days)])
                     label02 = np.array(self.sensor_data[(i+self.train_days):(i+self.train_days+self.predict_days)])
-                    # label01 = label01.astype(np.int)
                     label0 = [[ff] for ff in label0]
 
                     b = i+self.train_days
@@ -339,14 +337,13 @@ class DS:
             ii = 0
             while ii < self.opt.train_volume:
             
-                i = random.randint(3*24*4, len(self.data)-93*24*4-1)
+                i = random.randint(self.predict_days, len(self.data)-31*self.predict_days-1)
             
                 if ( not np.isnan(self.data[i:i+self.lens]).any()) and ( not np.isnan(self.R_data[i:i+self.lens]).any()) and (self.tag[i+self.train_days] <= -9 or -6 < self.tag[i+self.train_days] < 0) :
                 
                     data0 = np.array(self.sensor_data_norm1[i:(i+self.train_days)]).reshape(self.train_days,-1)
                     label00 = np.array(self.sensor_data_norm[(i+self.train_days):(i+self.train_days+self.predict_days)]) 
                     label01 = np.array(self.data[(i+self.train_days):(i+self.train_days+self.predict_days)]) 
-                    # label01 = label01.astype(np.int)
                     label0 =[[ff] for ff in label00]
 
                     b = i+self.train_days
@@ -358,7 +355,7 @@ class DS:
                     label3 = sin_date(self.month[b:e], self.day[b:e], self.hour[b:e]) # represent sin(int(data)) here
                     label3 = [[ff] for ff in label3]
 
-                    label4 = np.array(self.R_sensor_data_norm[(i+self.train_days-self.r_shift):(i+self.train_days+self.predict_days-self.r_shift)])
+                    label4 = np.array(self.R_sensor_data_norm[(i+self.train_days-self.predict_days):(i+self.train_days)])
                     label4 =[[ff] for ff in label4]
                 
                     label5 = np.array(self.R_sensor_data_norm[b:e])
@@ -447,10 +444,8 @@ class DS:
         if  (self.opt_hinter_dim >= 1):
             # read Rain data to vector
             R_start_num = self.R_X[self.R_X["datetime"]==self.opt.start_point].index.values[0]
-#             print("for sensor ", self.opt.rain_sensor, "start_num is: ", R_start_num)
             R_idx_num = 0
             R_train_end = self.R_X[self.R_X["datetime"]==self.opt.train_point].index.values[0] - R_start_num 
-#             print("R_X set length is : ", R_train_end)
  
             R_k = self.R_X[self.R_X["datetime"]==self.test_end_time].index.values[0]
             R_f = self.R_X[self.R_X["datetime"]==self.test_start_time].index.values[0]        
@@ -486,7 +481,7 @@ class DS:
         begin_num = self.trainX[self.trainX["datetime"]==self.test_start_time].index.values[0] - start_num
         end_num = self.trainX[self.trainX["datetime"]==self.test_end_time].index.values[0] - start_num
         
-        for i in range(int((end_num-begin_num-3*24*4)/16)):
+        for i in range(int((end_num-begin_num-self.predict_days)/16)):
             point = self.data_time[begin_num+i*16]
-            if not np.isnan(np.array(self.data[begin_num+i*16-15*24*4:begin_num+i*16 + 3*24*4])).any() :
+            if not np.isnan(np.array(self.data[begin_num+i*16-self.train_days:begin_num+i*16 + self.predict_days])).any() :
                 self.test_points.append([point])
