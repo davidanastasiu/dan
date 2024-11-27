@@ -39,8 +39,7 @@ class DS:
         self.test_end_time = self.opt.test_end
         self.opt_hinter_dim = self.opt.watershed
         self.gm3 = GaussianMixture(n_components=3,)
-        
-        self.is_over_sampling = 0
+
         self.norm_percen = 0
         self.kruskal = opt.oversampling
         self.event_focus_level = opt.event_focus_level
@@ -182,8 +181,7 @@ class DS:
         self.data_time = np.array(self.sensor_data["datetime"].fillna(np.nan))  
         self.sensor_data_norm, self.mean, self.std = log_std_normalization(self.data)    
         self.sensor_data_norm1 = [[ff] for ff in self.sensor_data_norm] 
- 
-        
+         
         if(self.is_prob_feature==1):
             clean_data = []
             for ii in range(len(self.data)):
@@ -259,53 +257,24 @@ class DS:
         
         #randomly choose val data
         random.seed(self.opt.val_seed)
-   
-        if(self.is_over_sampling == 1):
-        
-            print("Over sampling on validation set is not supported by now, please wait...")
 
-        else:   
-            ii = 0
-            while ii < self.opt.val_size:
+
+        ii = 0
+        while ii < self.opt.val_size:
             
-                i = random.randint(self.predict_days, len(self.data)-31*self.predict_days-1)
-                # Hydro year is from September to May, for all experiments and all methods.
-                if (not np.isnan(self.data[i:i+self.lens]).any()) and (not np.isnan(self.R_data[i:i+self.lens]).any())  and (self.tag[i+self.train_days] <= -9 or -6 < self.tag[i+self.train_days] < 0 or 2 <= self.tag[i+self.train_days] <= 3 ): 
+            i = random.randint(self.predict_days, len(self.data)-31*self.predict_days-1)
+            # Hydro year is from September to May, for all experiments and all methods.
+            if (not np.isnan(self.data[i:i+self.lens]).any()) and (not np.isnan(self.R_data[i:i+self.lens]).any())  and (self.tag[i+self.train_days] <= -9 or -6 < self.tag[i+self.train_days] < 0 or 2 <= self.tag[i+self.train_days] <= 3 ): 
 
-                    data0 = np.array(self.sensor_data_norm1[i:(i+self.train_days)]).reshape(self.train_days,-1)
-                    label0 = np.array(self.sensor_data_norm[(i+self.train_days):(i+self.train_days+self.predict_days)]) 
-                    label01 = np.array(self.data[(i+self.train_days):(i+self.train_days+self.predict_days)])
-                    label02 = np.array(self.sensor_data[(i+self.train_days):(i+self.train_days+self.predict_days)])
-                    label0 = [[ff] for ff in label0]
-
-                    b = i+self.train_days
-                    e = i+self.train_days+self.predict_days
+                self.tag[i+self.train_days] = 2 # tag 2 means in validation set
                     
-                    label2 = cos_date(self.month[b:e], self.day[b:e], self.hour[b:e]) # represent cos(int(data)) here
-                    label2 = [[ff] for ff in label2]
-                
-                    label3 = sin_date(self.month[b:e], self.day[b:e], self.hour[b:e]) # represent sin(int(data)) here
-                    label3 = [[ff] for ff in label3]
-                    
-                    label4 = np.array(self.R_sensor_data_norm[(i+self.train_days-self.predict_days-12):(i+self.train_days-12)]) 
-                    label4 = [[ff] for ff in label4]
-                
-                    label = np.concatenate((label0,label2),1)
-                    label = np.concatenate((label,label3),1)
-
-                    DATA.append(data0)
-                    Label.append(label)
-
-                
-                    self.tag[i+self.train_days] = 2 # tag 2 means in validation set
-                    
-                    for k in range (near_len):
-                        self.tag[i+self.train_days-k] = 3 # tag 3 means near points of validation set
-                        self.tag[i+self.train_days+k] = 3
+                for k in range (near_len):
+                    self.tag[i+self.train_days-k] = 3 # tag 3 means near points of validation set
+                    self.tag[i+self.train_days+k] = 3
                         
-                    point = self.data_time[i+self.train_days]
-                    self.val_points.append([point])                   
-                    ii = ii+1
+                point = self.data_time[i+self.train_days]
+                self.val_points.append([point])                   
+                ii = ii+1
                        
 
         self.opt.name = "%s" % (self.opt.model)
@@ -328,64 +297,59 @@ class DS:
 
         #randomly choose train data
         random.seed(self.opt.train_seed)
-   
-        if(self.is_over_sampling == 1):
-        
-            print("Over sampling on validation set is not supported by now, please wait...")
-
-        else:   
-            ii = 0
-            while ii < self.opt.train_volume:
+    
+        ii = 0
+        while ii < self.opt.train_volume:
             
-                i = random.randint(self.predict_days, len(self.data)-31*self.predict_days-1)
+            i = random.randint(self.predict_days, len(self.data)-31*self.predict_days-1)
             
-                if ( not np.isnan(self.data[i:i+self.lens]).any()) and ( not np.isnan(self.R_data[i:i+self.lens]).any()) and (self.tag[i+self.train_days] <= -9 or -6 < self.tag[i+self.train_days] < 0) :
+            if ( not np.isnan(self.data[i:i+self.lens]).any()) and ( not np.isnan(self.R_data[i:i+self.lens]).any()) and (self.tag[i+self.train_days] <= -9 or -6 < self.tag[i+self.train_days] < 0) :
                 
-                    data0 = np.array(self.sensor_data_norm1[i:(i+self.train_days)]).reshape(self.train_days,-1)
-                    label00 = np.array(self.sensor_data_norm[(i+self.train_days):(i+self.train_days+self.predict_days)]) 
-                    label01 = np.array(self.data[(i+self.train_days):(i+self.train_days+self.predict_days)]) 
-                    label0 =[[ff] for ff in label00]
+                data0 = np.array(self.sensor_data_norm1[i:(i+self.train_days)]).reshape(self.train_days,-1)
+                label00 = np.array(self.sensor_data_norm[(i+self.train_days):(i+self.train_days+self.predict_days)]) 
+                label01 = np.array(self.data[(i+self.train_days):(i+self.train_days+self.predict_days)]) 
+                label0 =[[ff] for ff in label00]
 
-                    b = i+self.train_days
-                    e = i+self.train_days+self.predict_days
+                b = i+self.train_days
+                e = i+self.train_days+self.predict_days
 
-                    label2 = cos_date(self.month[b:e], self.day[b:e], self.hour[b:e]) # represent cos(int(data)) here
-                    label2 = [[ff] for ff in label2]
+                label2 = cos_date(self.month[b:e], self.day[b:e], self.hour[b:e]) # represent cos(int(data)) here
+                label2 = [[ff] for ff in label2]
 
-                    label3 = sin_date(self.month[b:e], self.day[b:e], self.hour[b:e]) # represent sin(int(data)) here
-                    label3 = [[ff] for ff in label3]
+                label3 = sin_date(self.month[b:e], self.day[b:e], self.hour[b:e]) # represent sin(int(data)) here
+                label3 = [[ff] for ff in label3]
 
-                    label4 = np.array(self.R_sensor_data_norm[(i+self.train_days-self.predict_days):(i+self.train_days)])
-                    label4 =[[ff] for ff in label4]
+                label4 = np.array(self.R_sensor_data_norm[(i+self.train_days-self.predict_days):(i+self.train_days)])
+                label4 =[[ff] for ff in label4]
                 
-                    label5 = np.array(self.R_sensor_data_norm[b:e])
-                    label5 =[[ff] for ff in label5]
+                label5 = np.array(self.R_sensor_data_norm[b:e])
+                label5 =[[ff] for ff in label5]
                 
-                    label = np.concatenate((label0,label2),1)
-                    label = np.concatenate((label,label3),1)
-                    label = np.concatenate((label,label4),1)
-                    label = np.concatenate((label,label5),1)
+                label = np.concatenate((label0,label2),1)
+                label = np.concatenate((label,label3),1)
+                label = np.concatenate((label,label4),1)
+                label = np.concatenate((label,label5),1)
                     
-                    if (label01[:72] == label01[72:144]).all() and (label01[144:216] == label01[216:]).all() and (label01[72:144] == label01[144:216]).all():
-                        a = 0
-                        b = 0
-                    else:
-                        a, b = stats.kruskal(label01[:72], label01[72:144], label01[144:216], label01[216:])
-                    self.h_value.append(a)
-                    if a > self.kruskal:
+                if (label01[:72] == label01[72:144]).all() and (label01[144:216] == label01[216:]).all() and (label01[72:144] == label01[144:216]).all():
+                    a = 0
+                    b = 0
+                else:
+                    a, b = stats.kruskal(label01[:72], label01[72:144], label01[144:216], label01[216:])
+                self.h_value.append(a)
+                if a > self.kruskal:
+                    DATA.append(data0)
+                    Label.append(label)                
+                    self.tag[i+self.train_days] = 4 # tag 4 means in train set
+                    ii=ii+1
+                    self.sampled_h_value.append(a)
+                else: 
+                    kk = random.randint(0, 99)
+                    if kk <=self.event_focus_level:
                         DATA.append(data0)
                         Label.append(label)                
                         self.tag[i+self.train_days] = 4 # tag 4 means in train set
-                        ii=ii+1
+                        ii=ii+1     
                         self.sampled_h_value.append(a)
-                    else: 
-                        kk = random.randint(0, 99)
-                        if kk <=self.event_focus_level:
-                            DATA.append(data0)
-                            Label.append(label)                
-                            self.tag[i+self.train_days] = 4 # tag 4 means in train set
-                            ii=ii+1     
-                            self.sampled_h_value.append(a)
         
         dataset1=RnnDataset(DATA,Label)
         self.train_data_loader = DataLoader(dataset1, 
