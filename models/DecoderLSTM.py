@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import time  # unused?
-import os  # unused?
-import sys  # unused?
-import math  # unused?
+import time
+import os
+import sys
+import math
+
+import torch.nn.functional as F
+import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim  # unused?
-import numpy as np  # unused?
-import pandas as pd  # unused?
-from sklearn.metrics import mean_absolute_percentage_error  # unused?
+import torch.optim as optim
+import pandas as pd
 import random
+from utils.utils2 import *
+from sklearn.metrics import mean_absolute_percentage_error
 import logging
 
 logging.basicConfig(filename="Decoder_LSTM.log", filemode="w", level=logging.DEBUG)

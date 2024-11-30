@@ -2,11 +2,11 @@
 # coding: utf-8
 
 import numpy as np
-import random  # unused?
-import pandas as pd  # unused?
+import random
+import pandas as pd
 import math
 from torch.utils.data import TensorDataset
-from torch.utils.data import DataLoader  # unused?
+from torch.utils.data import DataLoader
 from matplotlib import pyplot as plt
 
 
