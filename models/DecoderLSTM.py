@@ -13,7 +13,7 @@ import torch.nn as nn
 import torch.optim as optim
 import pandas as pd
 import random
-from utils.utils2 import *
+from ..utils.utils2 import *
 from sklearn.metrics import mean_absolute_percentage_error
 import logging
 

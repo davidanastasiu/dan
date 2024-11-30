@@ -10,16 +10,16 @@ import torch.nn as nn
 import torch.optim as optim
 import pandas as pd
 import random
-from utils.utils2 import *
-from models.DANet import *
-from models.EncoderLSTM import *
-from models.DecoderLSTM import *
-from models.ResidueLSTM import *
+from ..utils.utils2 import *
+from .DANet import *
+from .EncoderLSTM import *
+from .DecoderLSTM import *
+from .ResidueLSTM import *
 from sklearn.metrics import mean_absolute_percentage_error
 from datetime import datetime, timedelta
 import zipfile
 import logging
-from utils.metric import *
+from ..utils.metric import *
 
 logging.basicConfig(filename="DAN_M.log", filemode="w", level=logging.DEBUG)
 random.seed("a")

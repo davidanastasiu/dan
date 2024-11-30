@@ -13,10 +13,10 @@ import torch.nn as nn
 import torch.optim as optim
 import pandas as pd
 import random
-from models.EncoderLSTM import *
-from models.DecoderLSTM import *
-from models.ResidueLSTM import *
-from utils.utils2 import *
+from .EncoderLSTM import *
+from .DecoderLSTM import *
+from .ResidueLSTM import *
+from ..utils.utils2 import *
 from sklearn.metrics import mean_absolute_percentage_error
 import logging
 

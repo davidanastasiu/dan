@@ -1,7 +1,7 @@
 import numpy as np
 import random
 import pandas as pd
-from utils.utils2 import *
+from ..utils.utils2 import *
 import os
 import sklearn
 from sklearn.mixture import GaussianMixture
