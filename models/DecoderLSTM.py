@@ -1,9 +1,17 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import torch.nn.functional as F
+import time  # unused?
+import os  # unused?
+import sys  # unused?
+import math  # unused?
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim  # unused?
+import numpy as np  # unused?
+import pandas as pd  # unused?
+from sklearn.metrics import mean_absolute_percentage_error  # unused?
 import random
 import logging
 
@@ -52,8 +60,8 @@ class DecoderLSTM(nn.Module):
         h3 = encoder_h[2]
         c3 = encoder_c[2]
         sig = nn.Sigmoid()
-        # m = nn.Softmax(dim=1) # unused
-        # x = x1 # unused
+        m = nn.Softmax(dim=1)  # unused?
+        x = x1  # unused?
 
         # far points
         o0, (hn, cn) = self.lstm00(x1, (h0, c0))

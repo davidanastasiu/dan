@@ -49,8 +49,8 @@ def metric_g(name, pre, gt):
     pre = np.array(pre)
     gt = np.array(gt)
     ll = int(len(pre) / 288)
-    # mae_all = [] # unused
-    # mse_all = [] # unused
+    mae_all = []  # unused?
+    mse_all = []  # unused?
     rmse_all = []
     mape_all = []
     l2 = []

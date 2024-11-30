@@ -1,8 +1,12 @@
-import os
-
+import time  # unused?
+import os  # unused?
+import sys  # unused?
+import math  # unused?
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F  # unused?
+import torch.optim as optim  # unused?
 import pandas as pd
 import random
 from ..utils.utils2 import (
@@ -12,6 +16,7 @@ from ..utils.utils2 import (
     log_std_normalization_1,
 )
 from .DANet import DANet
+from sklearn.metrics import mean_absolute_percentage_error  # unused?
 from datetime import datetime, timedelta
 import zipfile
 import logging
@@ -38,9 +43,9 @@ class DAN_I:
         self.is_prob_feature = 1
         self.TrainEnd = opt.model
         self.opt_hinter_dim = opt.watershed
-        # ENCODER_BLOCK = "encoder" # unused
-        # DECODER_BLOCK = "decoder" # unused
-        # RESIDUE_BLOCK = "residue" # unused
+        ENCODER_BLOCK = "encoder"  # unused?
+        DECODER_BLOCK = "decoder"  # unused?
+        RESIDUE_BLOCK = "residue"  # unused?
         stacks = opt.stack_types.split(",")
         stack_list = []
         for i in range(len(stacks)):
@@ -77,7 +82,7 @@ class DAN_I:
     def inference_test(self, x_test, y_input1, y_input2):
 
         y_predict = []
-        # d_out = torch.tensor([]).to(device) # unused
+        d_out = torch.tensor([]).to(device)  # unused?
         self.net.eval()
 
         with torch.no_grad():
@@ -232,7 +237,7 @@ class DAN_I:
         y_predict = np.array(y_predict.tolist())[0]
         y_predict = [y_predict[i].item() for i in range(len(y_predict))]
         test_predict = np.array(self.std_denorm_dataset(y_predict))
-        # diff_predict = [] # unused
+        diff_predict = []  # unused?
         test_predict = (test_predict + abs(test_predict)) / 2
 
         return test_predict
