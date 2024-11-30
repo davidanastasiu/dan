@@ -126,7 +126,7 @@ class Options:
         )
 
         self.parser.add_argument(
-            "--gpu_id", type=int, default=1, help="gpu ids: e.g. 0. use -1 for CPU"
+            "--gpu_id", type=int, default=0, help="gpu ids: e.g. 0. use -1 for CPU"
         )
         self.parser.add_argument(
             "--model", type=str, default="SFC_withRain", help="model label"
