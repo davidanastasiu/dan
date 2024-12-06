@@ -179,7 +179,6 @@ class Options:
         expr_dir = os.path.join(self.opt.outf, self.opt.name, "train")
         val_dir = os.path.join(self.opt.outf, self.opt.name, "val")
         test_dir = os.path.join(self.opt.outf, self.opt.name, "test")
-        print("opt.name: ", self.opt.name)
 
         if not os.path.isdir(expr_dir):
             os.makedirs(expr_dir)
