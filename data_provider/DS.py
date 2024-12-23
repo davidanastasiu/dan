@@ -295,9 +295,7 @@ class DS:
         ii = 0
         while ii < self.opt.val_size:
 
-            i = random.randint(
-                self.predict_days, len(self.data) - 31 * self.predict_days - 1
-            )
+            i = random.randint(self.predict_days, len(self.data) - self.lens - 1)
             # Hydro year is from September to May, for all experiments and all methods.
             if (
                 (not np.isnan(self.data[i: i + self.lens]).any())
