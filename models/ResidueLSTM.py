@@ -1,17 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import time  # unused?
-import os  # unused?
-import sys  # unused?
-import math  # unused?
 import torch
 import torch.nn as nn
-import torch.nn.functional as F  # unused?
-import torch.optim as optim  # unused?
-import numpy as np  # unused?
-import pandas as pd  # unused?
-from sklearn.metrics import mean_absolute_percentage_error  # unused?
 import random
 import logging
 
@@ -57,12 +48,8 @@ class ResidueLSTM(nn.Module):
         # Initialize hidden and cell state with zeros
         h0 = encoder_h[0]
         c0 = encoder_c[0]
-        h2 = encoder_h[1]  # unused?
-        c2 = encoder_c[1]  # unused?
         h3 = encoder_h[2]
         c3 = encoder_c[2]
-        sig = nn.Sigmoid()  # unused?
-        m = nn.Softmax(dim=1)  # unused?
 
         # far points
         o0, (hn, cn) = self.lstm00(x1, (h0, c0))
