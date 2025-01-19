@@ -9,10 +9,6 @@ import os
 import torch
 import numpy as np
 import pandas as pd
-import random  # unused?
-import sklearn  # unused?
-from sklearn.mixture import GaussianMixture  # unused?
-from scipy import stats  # unused?
 from .data_provider.DS import DS
 from .models.DAN_M import DAN
 from .models.Inference import DAN_I
@@ -296,7 +292,7 @@ if __name__ == "__main__":
         "./data_provider/datasets/" + opt.stream_sensor + ".csv", sep="\t"
     )
     trainX.columns = ["id", "datetime", "value"]
-    trainX.sort_values("datetime", inplace=True),
+    trainX.sort_values("datetime", inplace=True)
     R_X = pd.read_csv("./data_provider/datasets/" + opt.rain_sensor + ".csv", sep="\t")
     R_X.columns = ["id", "datetime", "value"]
     R_X.sort_values("datetime", inplace=True)
