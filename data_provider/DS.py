@@ -11,13 +11,10 @@ from ..utils.utils2 import (
     log_std_normalization_1,
 )
 import os
-import sklearn  # unused?
 from sklearn.mixture import GaussianMixture
 from scipy import stats
 import torch
 from torch.utils.data import DataLoader
-import zipfile  # unused?
-
 
 class DS:
 
@@ -183,7 +180,6 @@ class DS:
             self.trainX["datetime"] == self.opt.start_point
         ].index.values[0]
         print("for sensor ", self.opt.stream_sensor, "start_num is: ", start_num)
-        idx_num = 0  # unused?
         # foot label of train_end
         train_end = (
             self.trainX[self.trainX["datetime"] == self.opt.train_point].index.values[0]
@@ -245,7 +241,6 @@ class DS:
                 self.R_X["datetime"] == self.opt.start_point
             ].index.values[0]
             print("for sensor ", self.opt.rain_sensor, "start_num is: ", R_start_num)
-            R_idx_num = 0  # unused?
             R_train_end = (
                 self.R_X[self.R_X["datetime"] == self.opt.train_point].index.values[0]
                 - R_start_num
@@ -449,18 +444,8 @@ class DS:
         start_num = self.trainX[
             self.trainX["datetime"] == self.opt.start_point
         ].index.values[0]
-        idx_num = 0  # unused?
-        # foot label of train_end
-        train_end = (
-            self.trainX[self.trainX["datetime"] == self.opt.train_point].index.values[0]
-            - start_num
-        )  # unused?
-
         # the whole dataset
         k = self.trainX[self.trainX["datetime"] == self.test_end_time].index.values[0]
-        f = self.trainX[self.trainX["datetime"] == self.test_start_time].index.values[
-            0
-        ]  # unused?
         self.sensor_data = self.trainX[start_num:k]
         self.data = np.array(self.sensor_data["value"].fillna(np.nan))
         self.data_time = np.array(self.sensor_data["datetime"].fillna(np.nan))
@@ -505,16 +490,7 @@ class DS:
             R_start_num = self.R_X[
                 self.R_X["datetime"] == self.opt.start_point
             ].index.values[0]
-            R_idx_num = 0  # unused?
-            R_train_end = (
-                self.R_X[self.R_X["datetime"] == self.opt.train_point].index.values[0]
-                - R_start_num
-            )  # unused?
-
             R_k = self.R_X[self.R_X["datetime"] == self.test_end_time].index.values[0]
-            R_f = self.R_X[self.R_X["datetime"] == self.test_start_time].index.values[
-                0
-            ]  # unused?
             self.R_sensor_data = self.R_X[
                 R_start_num:R_k
             ]  # e.g. 2011/7/1  22:30:00 - 2020/6/22  23:30:00
