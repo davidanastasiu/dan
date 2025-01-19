@@ -1,17 +1,14 @@
 import time
 import os
-import sys  # unused?
 import math
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F  # unused?
-import torch.optim as optim  # unused?
 import pandas as pd
 import random
 import logging
 import zipfile
-from .DANet import DANet
+from ..models.DANet import DANet
 from ..utils.utils2 import (
     log_std_denorm_dataset,
     cos_date,
@@ -61,9 +58,6 @@ class DAN:
         self.TrainEnd = opt.model
         self.opt_hinter_dim = opt.watershed
         self.os = 1
-        ENCODER_BLOCK = "encoder"  # unused?
-        DECODER_BLOCK = "decoder"  # unused?
-        RESIDUE_BLOCK = "residue"  # unused?
         stacks = opt.stack_types.split(",")
         stack_list = []
         for i in range(len(stacks)):
@@ -110,7 +104,6 @@ class DAN:
     def inference_test(self, x_test, y_input1, y_input2):
 
         y_predict = []
-        d_out = torch.tensor([]).to(device)  # unused?
         self.net.eval()
 
         with torch.no_grad():
@@ -174,11 +167,6 @@ class DAN:
             x_test = np.array(
                 norm_data[test_point - self.train_days * 1: test_point], np.float32
             ).reshape(self.train_days, -1)
-        y_test = np.array(
-            norm_data[test_point: test_point + self.predict_days], np.float32
-        ).reshape(
-            self.predict_days, -1
-        )  # unused?
         y4 = np.array(
             self.R_norm_data[
                 test_point
@@ -267,7 +255,6 @@ class DAN:
         y_predict = [y_predict[i].item() for i in range(len(y_predict))]
         pre_gt = []
         test_predict = np.array(self.std_denorm_dataset(y_predict, pre_gt))
-        diff_predict = []  # unused?
         test_predict = (test_predict + abs(test_predict)) / 2
         return test_predict
 
@@ -312,11 +299,6 @@ class DAN:
             gt_mape_list.extend(ground_truth)
             val_mape_list.extend(test_predict)
 
-        name = "%s" % (self.opt.model)  # unused?
-        file_name = os.path.join(
-            self.val_dir, "validation_timestamps_24avg.tsv"
-        )  # unused?
-
         new_min_RMSE = min_RMSE
 
         if self.is_over_sampling == 1:
@@ -349,7 +331,6 @@ class DAN:
             )
 
             # save_model
-            net_name = self.expr_dir + "/" + "DAN.pt"  # unused?
             new_min_RMSE = total
             expr_dir = os.path.join(self.opt.outf, self.opt.name, "train")
             c_dir = os.getcwd()
@@ -506,7 +487,6 @@ class DAN:
         ind = 0
         while loop < len(val_points):
             ii = val_points[loop]
-            val_point = val_points[ind]  # unused?
             point = trainX[trainX["datetime"] == ii].index.values[0]
             x = trainX[point - self.train_days: point + self.predict_days][
                 "value"
@@ -530,13 +510,10 @@ class DAN:
         early_stop = 0
         old_val_loss = 1000
         min_RMSE = 500000
-        sig = nn.Sigmoid()  # unused?
-        m = nn.Softmax(dim=1)  # unused?
 
         for epoch in range(num_epochs):
             print_loss_total = 0  # Reset every epoch
             self.net.train()
-            random0 = 0  # unused?
             start = time.time()
 
             for i, batch in enumerate(self.dataloader):
@@ -569,8 +546,6 @@ class DAN:
                     device
                 )
                 Ind_g = torch.from_numpy(np.array(y_train3, np.float32)).to(device)
-
-                seg_label_g = y_train  # unused?
 
                 self.optimizer.zero_grad()
 

@@ -1,17 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import time  # unused?
-import os  # unused?
-import sys  # unused?
-import math  # unused?
 import torch
 import torch.nn as nn
-import torch.nn.functional as F  # unused?
-import torch.optim as optim  # unused?
-import numpy as np  # unused?
-import pandas as pd  # unused?
-from sklearn.metrics import mean_absolute_percentage_error  # unused?
 import random
 from .EncoderLSTM import EncoderLSTM
 from .DecoderLSTM import DecoderLSTM
@@ -52,7 +43,6 @@ class DANet(nn.Module):
     def create_stack(self, stack_id):
         stack_type = self.stack_types[stack_id]
         print(f"| --  Stack {stack_type.title()} (#{stack_id})")
-        blocks = []  # unused?
         block_init = DANet.set_block(stack_type)
         block = block_init(self.opt)
         self.parameters.extend(block.parameters())
