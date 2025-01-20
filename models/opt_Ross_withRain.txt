@@ -1,4 +1,4 @@
-batchsize|48
+batchsize|24
 cnn_dim|256
 epochs|50
 event_focus_level|18
